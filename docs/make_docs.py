@@ -287,10 +287,9 @@ class SphinxDocsBuilder:
     (3) Calls `sphinx-build` with the user argument
     """
 
-    def __init__(self, html_output_dir, is_release, skip_notebooks):
+    def __init__(self, html_output_dir, is_release):
         self.html_output_dir = html_output_dir
         self.is_release = is_release
-        self.skip_notebooks = skip_notebooks
 
     def run(self):
         """
@@ -326,16 +325,8 @@ class SphinxDocsBuilder:
                 build_dir,
             ]
 
-        sphinx_env = os.environ.copy()
-        sphinx_env[
-            "skip_notebooks"] = "true" if self.skip_notebooks else "false"
-
         print('Calling: "%s"' % " ".join(cmd))
-        print('Env: "%s"' % sphinx_env)
-        subprocess.check_call(cmd,
-                              env=sphinx_env,
-                              stdout=sys.stdout,
-                              stderr=sys.stderr)
+        subprocess.check_call(cmd, stdout=sys.stdout, stderr=sys.stderr)
 
 
 class DoxygenDocsBuilder:
@@ -368,9 +359,6 @@ class JupyterDocsBuilder:
         print("Notebook execution mode: {}".format(self.execute_notebooks))
 
     def run(self):
-        if self.execute_notebooks == "never":
-            return
-
         # Setting os.environ["CI"] will disable interactive (blocking) mode in
         # Jupyter notebooks
         os.environ["CI"] = "true"
@@ -383,7 +371,7 @@ class JupyterDocsBuilder:
             shutil.rmtree(test_data_out_dir)
         shutil.copytree(test_data_in_dir, test_data_out_dir)
 
-        # Copy and execute notebooks in the tutorial folder
+        # Copy notebooks from examples/python to docs/tutorial
         nb_paths = []
         nb_direct_copy = ['tensor.ipynb', 'hashmap.ipynb']
         example_dirs = [
@@ -420,7 +408,7 @@ class JupyterDocsBuilder:
                                                   out_dir / "images"))
                 shutil.copytree(in_dir / "images", out_dir / "images")
 
-        # Execute Jupyter notebooks
+        # Execute notebooks
         for nb_path in nb_paths:
             if nb_path.name in nb_direct_copy:
                 print("[Processing notebook {}, directly copied]".format(
@@ -437,8 +425,17 @@ class JupyterDocsBuilder:
                 c.get("outputs") or c.get("execution_count")
                 for c in nb.cells
                 if c.cell_type == "code")
-            execute = (self.execute_notebooks == "auto" and has_code and
-                       not has_output) or self.execute_notebooks == "always"
+
+            if self.execute_notebooks == "never":
+                execute = False
+            elif self.execute_notebooks == "always":
+                execute = True
+            elif self.execute_notebooks == "auto":
+                execute = has_code and not has_output
+            else:
+                raise ValueError(
+                    f"Invalid execute_notebooks option: {self.execute_notebooks}."
+                )
             print("has_code: {}, has_output: {}, execute: {}".format(
                 has_code, has_output, execute))
 
@@ -538,10 +535,7 @@ if __name__ == "__main__":
     # To customize build, run sphinx-build manually
     if args.sphinx:
         print("Building Sphinx docs")
-        skip_notebooks = (args.execute_notebooks == "never" and
-                          args.clean_notebooks)
-        sdb = SphinxDocsBuilder(html_output_dir, args.is_release,
-                                skip_notebooks)
+        sdb = SphinxDocsBuilder(html_output_dir, args.is_release)
         sdb.run()
     else:
         print("Sphinx build disabled, use --sphinx to enable")
