@@ -3,11 +3,11 @@
 Reconstruction system (Tensor)
 ===================================================================
 
-This tutorial demonstrates volumetric RGB-D reconstruction and dense RGB-D SLAM with the :ref:`/tutorial/core/tensor.ipynb` interface and the :ref:`/tutorial/core/hashmap.ipynb` backend.
+This tutorial demonstrates volumetric RGB-D reconstruction and dense RGB-D SLAM with the :ref:`/tutorial/core/tensor.ipynb` and the :ref:`/tutorial/core/hashmap.ipynb` backend.
 
-The tutorial may run at a minimal dataset in ``examples/test_data/RGBD``, but it is recommended to run on real-world longer sequences to demonstrate the functionality. Please refer to :ref:`/tutorial/geometry/rgbd_image.ipynb` for available datasets. The ``Redwood`` dataset is recommended.
+The tutorial can be run with a minimal dataset in ``examples/test_data/RGBD``, but it is recommended to run on real-world RGBD sequences to demonstrate its functionalities. Please refer to :ref:`/tutorial/geometry/rgbd_image.ipynb` for available datasets. The ``Redwood`` dataset is recommended.
 
-If you use any part of the Tensor-based reconstruction system, please cite [Dong2021]_::
+If you use the hash map backend or the Tensor-based reconstruction system, please cite [Dong2021]_::
 
   @article{Dong2021,
       author    = {Wei Dong, Yixing Lao, Michael Kaess, and Vladlen Koltun}
