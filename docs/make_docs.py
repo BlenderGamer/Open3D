@@ -525,11 +525,12 @@ if __name__ == "__main__":
         pd = PyAPIDocsBuilder()
         pd.generate_rst()
 
-    if not args.execute_notebooks == "never":
-        print("Building Jupyter docs")
-        jdb = JupyterDocsBuilder(pwd, args.clean_notebooks,
-                                 args.execute_notebooks)
-        jdb.run()
+    # Jupyter docs
+    # If args.execute_notebooks == "never", only the directly-copied notebooks
+    # will be made available.
+    print("Building Jupyter docs")
+    jdb = JupyterDocsBuilder(pwd, args.clean_notebooks, args.execute_notebooks)
+    jdb.run()
 
     # Sphinx is hard-coded to build with the "html" option
     # To customize build, run sphinx-build manually
